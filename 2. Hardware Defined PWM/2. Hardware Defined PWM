@@ -79,8 +79,6 @@ __interrupt void Timer_B0_ISR(void)
             break;
            
     case 2:
-           red = 0; //no red
-           blue = 0; //no blue
            green --; //decrease green
            blue ++; //increase blue
            
@@ -91,7 +89,6 @@ __interrupt void Timer_B0_ISR(void)
             break;
             
       case 3 :
-           green = 0; //no green
            blue ++; //increase blue
            
            if (blue > 998) //if all blue
@@ -101,8 +98,6 @@ __interrupt void Timer_B0_ISR(void)
             break;
            
       case 4:
-           green = 0; //no green
-           red = 0; //no red
            blue --; //decrease blue
            red ++; //increase red
            
