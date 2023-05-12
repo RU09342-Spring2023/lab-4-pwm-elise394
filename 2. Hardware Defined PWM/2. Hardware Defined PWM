@@ -17,7 +17,7 @@ char state;
 int main(void)
 {
 	WDTCTL = WDTPW | WDTHOLD;	// stop watchdog timer
- PM5CTL0 &= ~LOCKLPM5; //unlock MSP
+        PM5CTL0 &= ~LOCKLPM5; //unlock MSP
 	LEDSetup(); // Initialize our LED
  
  state = 0; //start at the beginning
@@ -38,7 +38,7 @@ P6OUT &= ~BIT0; //clear previous config for 6.0
 P6DIR |= BIT1; //set led as output, 6.1
 P6OUT &= ~BIT1; //clear previous config for 6.1
 
-//6.1 will be used for blue
+//6.2 will be used for blue
 P6DIR |= BIT2; //set led as output, 6.2
 P6OUT &= ~BIT2; //clear previous config for 6.2
 }
