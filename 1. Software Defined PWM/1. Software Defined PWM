@@ -1,7 +1,8 @@
 /*
  * Part1.c
  *
- *  Author: Elise Heim
+ * Author: Elise Heim
+ * I used Trafford's example setup and THEN remembered!!! there's no timer A on this microcontroller lol
  */
 
 #include <msp430.h>
@@ -9,12 +10,11 @@
 void LEDSetup();
 void ButtonSetup();
 void TimerB0Setup(); 
-//I used Trafford's example setup and THEN remembered!!! there's no timer A on this microcontroller lol
 
 int main(void)
 {
 	WDTCTL = WDTPW | WDTHOLD;	// stop watchdog timer
-  PM5CTL0 &= ~LOCKLPM5; //unlock MSP
+       PM5CTL0 &= ~LOCKLPM5; //unlock MSP
 	LEDSetup(); // Initialize our LEDS
 	ButtonSetup();  // Initialize our button
 	TimerB0Setup(); // Initialize TimerB0, NOT timer A!
@@ -56,9 +56,13 @@ __interrupt void Port_2(void)
 {
     P2IFG &= ~BIT3; //clear interrupt flag of 2.3
     if (TB0CCR1 > 1000)//if duty cycle is at 100%
+        {
         TB0CCR1 = 0; //set brightness to 0
+	}
     else
+        {
         TB0CCR1 += 100;//otherwise, add 10%
+	}
 }
 
 #pragma vector=PORT4_VECTOR
@@ -66,9 +70,14 @@ __interrupt void Port_4(void)
 {
     P4IFG &= ~BIT1; //clear interrupt flag of 4.1
     if (TB0CCR1 > 1000)//if duty cycle is at 100%
+  	{
         TB0CCR1 = 0; //set brightness to 0
+	}
     else
+        {
         TB0CCR1 += 100;//otherwise, add 10%
+	}
+
 }
 
 #if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
