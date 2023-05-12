@@ -1,1 +1,94 @@
-add more here!!!
+/*
+ * Part1.c
+ *
+ *  Author: Elise Heim
+ */
+
+#include <msp430.h>
+
+void LEDSetup();
+void ButtonSetup();
+void TimerB0Setup(); 
+//I used Trafford's example setup and THEN remembered!!! there's no timer A on this microcontroller lol
+
+int main(void)
+{
+	WDTCTL = WDTPW | WDTHOLD;	// stop watchdog timer
+  PM5CTL0 &= ~LOCKLPM5; //unlock MSP
+	LEDSetup(); // Initialize our LEDS
+	ButtonSetup();  // Initialize our button
+	TimerB0Setup(); // Initialize TimerB0, NOT timer A!
+	__bis_SR_register(LPM0_bits + GIE);       // Enter LPM0 w/ interrupt
+}
+
+void LEDSetup() {
+P1DIR |= BIT0; //set red led as output, 1.0
+P1OUT &= ~BIT0; //clear previous config for 1.0
+
+P6DIR |= BIT6; //set green led as output, 6.6
+P6OUT &= ~BIT6; //clear previous config for 6.6
+}
+
+void ButtonSetup() {
+  P2DIR &= ~BIT3; // set button 2.3 as input
+  P2REN |= BIT3; //2.3 button reg enable 
+  P2IE |= BIT3; // 2.3 button interrupt enabled
+  P2OUT |= BIT3; //2.3 button as pulled up
+  P2IES &= ~BIT3; // 2.3 button low to high, interrupt edge select
+
+  P4DIR &= ~BIT1; // set button 4.1 as input
+  P4REN |= BIT1; //4.1 button reg enable 
+  P4IE |= BIT1; // 4.1 button interrupt enabled
+  P4OUT |= BIT1; //4.1 button as pulled up
+  P4IES &= ~BIT1; // 4.1 button low to high, interrupt edge select
+}
+
+void TimerB0Setup() {
+  // Initialize Timer 0
+  TB0CTL = TBSSEL__SMCLK | MC__UP | TBIE; // SMCLK, up mode, enable  interrupt
+  TB0CCTL1 |= CCIE; //enable capture compare interrupt
+  TB0CCR0 = 1000; //CCR0 max as 1kHz
+  TB0CCR1 = 500; // CCR1 have 50% max duty cycle
+}
+
+#pragma vector=PORT2_VECTOR
+__interrupt void Port_2(void)
+{
+    P2IFG &= ~BIT3; //clear interrupt flag of 2.3
+    if (TB0CCR1 > 1000)//if duty cycle is at 100%
+        TB0CCR1 = 0; //set brightness to 0
+    else
+        TB0CCR1 += 100;//otherwise, add 10%
+}
+
+#pragma vector=PORT4_VECTOR
+__interrupt void Port_4(void)
+{
+    P4IFG &= ~BIT1; //clear interrupt flag of 4.1
+    if (TB0CCR1 > 1000)//if duty cycle is at 100%
+        TB0CCR1 = 0; //set brightness to 0
+    else
+        TB0CCR1 += 100;//otherwise, add 10%
+}
+
+#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
+#pragma vector=TIMER1_B1_VECTOR
+__interrupt void TIMER1_B1_ISR(void) 
+{
+    switch(__even_in_range(TB1IV,TB1IV_TBIFG))
+    {
+        case TB1IV_NONE: // No interrupt
+            break;      
+        case TB1IV_TBCCR1: // CCR1 set the pin to a 0
+            P6OUT &= ~BIT6;
+            break;  
+        case TB1IV_TBCCR2: // CCR2 not used
+            break; 
+        case TB1IV_TBIFG: // overflow set the pin to a 1
+            P6OUT |= BIT6;   
+            break;
+        default: //otherwise break
+            break;
+    }
+}
+
