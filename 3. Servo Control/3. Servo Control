@@ -12,10 +12,10 @@ void TimerB0Setup();
 
 int main(void)
 {
-	WDTCTL = WDTPW | WDTHOLD;	// stop watchdog timer
-  PM5CTL0 &= ~LOCKLPM5; //unlock MSP
-	LEDSetup(); // Initialize our LED
-  ButtonSetup();
+        WDTCTL = WDTPW | WDTHOLD;	// stop watchdog timer
+        PM5CTL0 &= ~LOCKLPM5; //unlock MSP
+        LEDSetup(); // Initialize our LED
+        ButtonSetup();
 
 	TimerB0Setup(); // Initialize TimerB0
 	__bis_SR_register(LPM0_bits + GIE);       // Enter LPM0 w/ interrupt
@@ -52,7 +52,7 @@ __interrupt void Port_2(void)
   P2IFG &= ~BIT3; //clear interrupt flag for 2.3
   if (TB1CCR1 > 2000)
   {
-    TB1CCR1 -= 200; //add 10% duty cycle
+    TB1CCR1 -= 200; //subtract 10% duty cycle
   }
 }
 
@@ -62,7 +62,7 @@ __interrupt void Port_4(void)
   P4IFG &= ~BIT1; //clear interrupt flag for 4.1
   if (TB1CCR1 < 2000)
   {
-    TB1CCR1 += 200; //subtract 10% duty cycle
+    TB1CCR1 += 200; //add 10% duty cycle
   }
 }
 
